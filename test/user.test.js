@@ -231,3 +231,33 @@ describe("PATCH /api/users/current", () => {
     expect(await bcrypt.compare("tonystark", user.password)).toBe(true);
   });
 });
+
+describe("DELETE /api/users/logout", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can log user out", async () => {
+    const result = await supertest(app)
+      .delete("/api/users/logout")
+      .set("Authorization", "test");
+
+    expect(result.status).toBe(200);
+    expect(result.body.data).toBe("OK");
+
+    const user = await getTestUser();
+    expect(user.token).toBeNull();
+  });
+
+  it("should reject logout if token is invalid", async () => {
+    const result = await supertest(app)
+      .delete("/api/users/logout")
+      .set("Authorization", "wronggg");
+
+    expect(result.status).toBe(401);
+  });
+});
