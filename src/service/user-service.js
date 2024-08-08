@@ -2,6 +2,7 @@ import { ResponseError } from "../error/response-error.js";
 import User from "../models/user.model.js";
 import userTransformer from "../transformer/user-transformer.js";
 import {
+  getUserValidation,
   loginUserValidation,
   registerUserValidation,
 } from "../validation/user-validation.js";
@@ -59,7 +60,23 @@ const login = async (request) => {
   ).select({ token });
 };
 
+const get = async (username) => {
+  username = validate(getUserValidation, username);
+
+  const user = await User.findOne({ username }).select({
+    name: true,
+    username: true,
+  });
+
+  if (!user) {
+    throw new ResponseError(404, "User is not found");
+  }
+
+  return user;
+};
+
 export default {
   register,
   login,
+  get,
 };
