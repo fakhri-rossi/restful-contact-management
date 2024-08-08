@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password have to be filled"],
     minlength: [6, "Password length cannot be less than 6"],
+    maxlength: [100, "Password cannot be more than 100 length"],
   },
   token: {
     type: String,
