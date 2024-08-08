@@ -13,6 +13,10 @@ const errorMiddleware = async (err, req, res, next) => {
         errors: err.message,
       })
       .end();
+  } else if (err.kind === "ObjectId") {
+    res.status(404).json({
+      errors: "ObjectId is not valid or not found",
+    });
   } else {
     res
       .status(500)
