@@ -1,10 +1,12 @@
 import { ResponseError } from "../error/response-error.js";
 import User from "../models/user.model.js";
 import userTransformer from "../transformer/user-transformer.js";
+import logger from "../utils/logger.js";
 import {
   getUserValidation,
   loginUserValidation,
   registerUserValidation,
+  updateUserValidation,
 } from "../validation/user-validation.js";
 import { validate } from "../validation/validation.js";
 import bcrypt from "bcryptjs";
@@ -75,8 +77,39 @@ const get = async (username) => {
   return user;
 };
 
+const update = async (request) => {
+  const user = validate(updateUserValidation, request);
+
+  const totalUserInDatabase = await User.countDocuments({
+    username: user.username,
+  });
+
+  if (totalUserInDatabase !== 1) {
+    throw new ResponseError(404, "User is not found");
+  }
+
+  const data = {};
+  if (user.name) {
+    data.name = user.name;
+  }
+  if (user.password) {
+    data.password = await bcrypt.hash(user.password, 10);
+  }
+
+  const result = await User.findOneAndUpdate(
+    { username: user.username },
+    {
+      $set: { name: data.name, password: data.password },
+    },
+    { new: true }
+  );
+
+  return userTransformer(result);
+};
+
 export default {
   register,
   login,
   get,
+  update,
 };
