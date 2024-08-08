@@ -31,3 +31,26 @@ export const removeAllTestContacts = async () => {
     username: "test",
   });
 };
+
+export const createTestContact = async () => {
+  const contactResult = await Contact.create({
+    username: "test",
+    first_name: "test",
+    last_name: "test",
+    email: "test@example.com",
+    phone: "081234567890",
+  });
+
+  await User.findOneAndUpdate(
+    {
+      username: contactResult.username,
+    },
+    { $push: { contacts: contactResult._id } }
+  );
+};
+
+export const getTestContact = async () => {
+  return await Contact.findOne({
+    username: "test",
+  });
+};
