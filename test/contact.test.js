@@ -93,12 +93,78 @@ describe("GET /api/contacts/:contact_id", () => {
   });
 
   it("should return 404 if contact id is not found", async () => {
+    const result = await supertest(app)
+      .get(`/api/contacts/66b47995a19bdd83c264d100}`)
+      .set("Authorization", "test");
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(404);
+  });
+});
+
+describe("PUT /api/contacts/:contact_id", () => {
+  beforeEach(async () => {
+    await createTestUser();
+    await createTestContact();
+  });
+
+  afterEach(async () => {
+    await removeAllTestContacts();
+    await removeTestUser();
+  });
+
+  it("should can update existing contact", async () => {
     const testContact = await getTestContact();
 
     const result = await supertest(app)
-      // .get(`/api/contacts/heheyboyy}`)
-      .get(`/api/contacts/66b47995a19bdd83c264d100}`)
-      .set("Authorization", "test");
+      .put(`/api/contacts/${testContact._id}`)
+      .set("Authorization", "test")
+      .send({
+        first_name: "Fakhri",
+        last_name: "Rossi",
+        email: "rossi@test.com",
+        phone: "081212121212",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data._id).toBe(testContact._id.toString());
+    expect(result.body.data.first_name).toBe("Fakhri");
+    expect(result.body.data.last_name).toBe("Rossi");
+    expect(result.body.data.email).toBe("rossi@test.com");
+    expect(result.body.data.phone).toBe("081212121212");
+  });
+
+  it("should reject update if request is invalid", async () => {
+    const testContact = await getTestContact();
+
+    const result = await supertest(app)
+      .put(`/api/contacts/${testContact._id}`)
+      .set("Authorization", "test")
+      .send({
+        first_name: "",
+        last_name: "",
+        email: "rossi",
+        phone: "",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(400);
+  });
+
+  it("should reject update if contact is not found", async () => {
+    const result = await supertest(app)
+      .put(`/api/contacts/heheyyyboyyy`)
+      .set("Authorization", "test")
+      .send({
+        first_name: "Fakhri",
+        last_name: "Rossi",
+        email: "rossi@test.com",
+        phone: "081212121212",
+      });
 
     logger.info(result.body);
 
