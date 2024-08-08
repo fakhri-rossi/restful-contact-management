@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "../src/models/user.model";
 import bcrypt from "bcryptjs";
+import Contact from "../src/models/contact.model";
 
 export const removeTestUser = async () => {
   await User.deleteMany({ username: "test" });
@@ -21,6 +22,12 @@ export const closeDBConnection = async () => {
 
 export const getTestUser = async () => {
   return await User.findOne({
+    username: "test",
+  });
+};
+
+export const removeAllTestContacts = async () => {
+  await Contact.deleteMany({
     username: "test",
   });
 };
