@@ -1,7 +1,7 @@
 import { ResponseError } from "../error/response-error.js";
 import User from "../models/user.model.js";
 import userTransformer from "../transformer/user-transformer.js";
-import { registerUserValidation } from "../validation/user-validation";
+import { registerUserValidation } from "../validation/user-validation.js";
 import { validate } from "../validation/validation.js";
 import bcrypt from "bcryptjs";
 
