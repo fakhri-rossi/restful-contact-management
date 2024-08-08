@@ -77,8 +77,35 @@ const update = async (user, request) => {
   return contactTransformer(contactResponse);
 };
 
+const remove = async (user, contactId) => {
+  contactId = validate(getContactValidation, contactId);
+
+  const countContactInDatabase = await Contact.findOne({
+    username: user.username,
+    _id: contactId,
+  });
+
+  if (countContactInDatabase < 0) {
+    throw new ResponseError(404, "Contact is not found");
+  }
+
+  await Contact.deleteOne({
+    _id: contactId,
+  });
+
+  await User.findOneAndUpdate(
+    {
+      username: user.username,
+    },
+    {
+      $pull: { contacts: contactId },
+    }
+  );
+};
+
 export default {
   create,
   get,
   update,
+  remove,
 };
