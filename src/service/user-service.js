@@ -107,9 +107,27 @@ const update = async (request) => {
   return userTransformer(result);
 };
 
+const logout = async (username) => {
+  username = validate(getUserValidation, username);
+
+  const user = await User.findOne({ username });
+
+  if (!user) {
+    throw new ResponseError(404, "User is not found");
+  }
+
+  return await User.findOneAndUpdate(
+    { username }, 
+    { $set: { token: null } }
+  ).select({
+    username: true
+  });
+};
+
 export default {
   register,
   login,
   get,
   update,
+  logout,
 };
