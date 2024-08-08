@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
   token: {
     type: String,
   },
+  contacts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Contact",
+    },
+  ],
 });
 
 const User = mongoose.model("User", userSchema);
