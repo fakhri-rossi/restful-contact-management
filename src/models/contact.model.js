@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { isEmail } from "validator";
+import validator from "validator";
 
 const contactSchema = new mongoose.Schema({
   first_name: {
@@ -14,7 +14,7 @@ const contactSchema = new mongoose.Schema({
   email: {
     type: String,
     maxlength: [200, "email length cannot be moe than 200"],
-    validate: [isEmail, "Invalid Email format"],
+    validate: [validator.isEmail, "Invalid Email format"],
   },
   phone: {
     type: String,
@@ -23,6 +23,9 @@ const contactSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+  },
+  username: {
+    type: String,
   },
   addresses: [
     {
