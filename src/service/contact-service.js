@@ -1,6 +1,7 @@
 import {
   createContactValidation,
   getContactValidation,
+  updateContactValidation,
 } from "../validation/contact-validation.js";
 import { validate } from "../validation/validation.js";
 import User from "../models/user.model.js";
@@ -46,7 +47,38 @@ const get = async (user, contactId) => {
   return contactTransformer(contact);
 };
 
+const update = async (user, request) => {
+  const contact = validate(updateContactValidation, request);
+
+  const countContactInDatabase = await Contact.countDocuments({
+    username: user.username,
+    _id: contact._id,
+  });
+
+  if (countContactInDatabase < 1) {
+    throw new ResponseError(404, "Contact is not found");
+  }
+
+  const contactResponse = await Contact.findOneAndUpdate(
+    {
+      _id: contact._id,
+    },
+    {
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      email: contact.email,
+      phone: contact.phone,
+    },
+    {
+      new: true,
+    }
+  );
+
+  return contactTransformer(contactResponse);
+};
+
 export default {
   create,
   get,
+  update,
 };
