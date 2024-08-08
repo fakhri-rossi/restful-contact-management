@@ -20,10 +20,16 @@ const contactSchema = new mongoose.Schema({
     type: String,
     maxlength: [20, "phone length cannot be moe than 20"],
   },
-  user: {
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  addresses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+    },
+  ],
 });
 
 const Contact = mongoose.model("Contact", contactSchema);
