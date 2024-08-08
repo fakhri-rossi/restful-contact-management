@@ -18,3 +18,9 @@ export const createTestUser = async () => {
 export const closeDBConnection = async () => {
   await mongoose.connection.close();
 };
+
+export const getTestUser = async () => {
+  return await User.findOne({
+    username: "test",
+  });
+};

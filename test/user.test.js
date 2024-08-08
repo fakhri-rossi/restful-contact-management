@@ -1,9 +1,11 @@
 import supertest from "supertest";
 import { app } from "../src/app/app.js";
 import logger from "../src/utils/logger.js";
+import bcrypt from "bcryptjs";
 import {
   closeDBConnection,
   createTestUser,
+  getTestUser,
   removeTestUser,
 } from "./test-util.js";
 
@@ -154,5 +156,78 @@ describe("GET /api/users/current", () => {
     logger.info(result.body);
     expect(result.status).toBe(401);
     expect(result.body.errors).toBeDefined();
+  });
+});
+
+describe("PATCH /api/users/current", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can update user", async () => {
+    const result = await supertest(app)
+      .patch("/api/users/current")
+      .set("Authorization", "test")
+      .send({
+        name: "Rossi",
+        password: "tonystark",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBe("test");
+    expect(result.body.data.name).toBe("Rossi");
+
+    const user = await getTestUser();
+    expect(await bcrypt.compare("tonystark", user.password)).toBe(true);
+  });
+
+  it("should can update user name", async () => {
+    const result = await supertest(app)
+      .patch("/api/users/current")
+      .set("Authorization", "test")
+      .send({
+        name: "Rossi",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBe("test");
+    expect(result.body.data.name).toBe("Rossi");
+  });
+
+  it("should reject user update if request not valid", async () => {
+    const result = await supertest(app)
+      .patch("/api/users/current")
+      .set("Authorization", "wronggg")
+      .send();
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(401);
+  });
+
+  it("should can update user password", async () => {
+    const result = await supertest(app)
+      .patch("/api/users/current")
+      .set("Authorization", "test")
+      .send({
+        password: "tonystark",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBe("test");
+    expect(result.body.data.name).toBe("Test Example");
+
+    const user = await getTestUser();
+    expect(await bcrypt.compare("tonystark", user.password)).toBe(true);
   });
 });
