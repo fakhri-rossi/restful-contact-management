@@ -4,10 +4,10 @@ import Contact from "../models/contact.model.js";
 import { validate } from "../validation/validation.js";
 import { getContactValidation } from "../validation/contact-validation.js";
 import { ResponseError } from "../error/response-error.js";
-import { createAddressValidation } from "../validation/address-validation.js";
+import { createAddressValidation, getAddressValidation } from "../validation/address-validation.js";
 import addressTransformer from "../transformer/address-transformer.js";
 
-const create = async (user, contactId, request) => {
+const isContactExists = async (user, contactId) => {
   contactId = validate(getContactValidation, contactId);
 
   const countContact = await Contact.countDocuments({
@@ -18,6 +18,12 @@ const create = async (user, contactId, request) => {
   if (countContact < 1) {
     throw new ResponseError(404, "Contact is not found");
   }
+
+  return contactId;
+};
+
+const create = async (user, contactId, request) => {
+  contactId = await isContactExists(user, contactId);
 
   request = validate(createAddressValidation, request);
   request.contact_id = contactId;
@@ -38,6 +44,23 @@ const create = async (user, contactId, request) => {
   return addressTransformer(addressResponse);
 };
 
+const get = async (user, contactId, addressId) => {
+  contactId = await isContactExists(user, contactId);
+  addressId = validate(getAddressValidation, addressId);
+
+  const addressResponse = await Address.findOne({
+    contact_id: contactId,
+    _id: addressId,
+  });
+
+  if (!addressResponse) {
+    throw new ResponseError(404, "Address is not found");
+  }
+
+  return addressTransformer(addressResponse);
+};
+
 export default {
   create,
+  get,
 };
