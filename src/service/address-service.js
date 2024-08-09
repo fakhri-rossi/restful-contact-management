@@ -4,7 +4,11 @@ import Contact from "../models/contact.model.js";
 import { validate } from "../validation/validation.js";
 import { getContactValidation } from "../validation/contact-validation.js";
 import { ResponseError } from "../error/response-error.js";
-import { createAddressValidation, getAddressValidation } from "../validation/address-validation.js";
+import {
+  createAddressValidation,
+  getAddressValidation,
+  updateAddressValidation,
+} from "../validation/address-validation.js";
 import addressTransformer from "../transformer/address-transformer.js";
 
 const isContactExists = async (user, contactId) => {
@@ -60,7 +64,41 @@ const get = async (user, contactId, addressId) => {
   return addressTransformer(addressResponse);
 };
 
+const update = async (user, contactId, request) => {
+  contactId = await isContactExists(user, contactId);
+  const address = validate(updateAddressValidation, request);
+
+  const countAddress = await Address.countDocuments({
+    _id: address._id,
+  });
+
+  if (countAddress < 1) {
+    throw new ResponseError(404, "Address is not found");
+  }
+
+  const addressResponse = await Address.findOneAndUpdate(
+    {
+      _id: address._id,
+    },
+    {
+      $set: {
+        street: address.street,
+        city: address.city,
+        province: address.province,
+        country: address.country,
+        postal_code: address.postal_code,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  return addressTransformer(addressResponse);
+};
+
 export default {
   create,
   get,
+  update,
 };
