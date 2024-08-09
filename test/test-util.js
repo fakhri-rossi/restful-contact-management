@@ -54,3 +54,22 @@ export const getTestContact = async () => {
     username: "test",
   });
 };
+
+export const createManyTestContact = async () => {
+  for (let i = 0; i < 15; i++) {
+    const contactResult = await Contact.create({
+      username: `test`,
+      first_name: `test${i}`,
+      last_name: `test${i}`,
+      email: `test${i}@example.com`,
+      phone: `08123456789${i}`,
+    });
+
+    await User.findOneAndUpdate(
+      {
+        username: contactResult.username,
+      },
+      { $push: { contacts: contactResult._id } }
+    );
+  }
+};
