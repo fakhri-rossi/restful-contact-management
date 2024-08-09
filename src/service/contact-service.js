@@ -1,6 +1,7 @@
 import {
   createContactValidation,
   getContactValidation,
+  searchContactValidation,
   updateContactValidation,
 } from "../validation/contact-validation.js";
 import { validate } from "../validation/validation.js";
@@ -103,9 +104,68 @@ const remove = async (user, contactId) => {
   );
 };
 
+const search = async (user, request) => {
+  request = validate(searchContactValidation, request);
+
+  // 1 -> (page - 1) * size = 0
+  // 2 -> (page - 1) * size = 10
+  const skip = (request.page - 1) * request.size;
+
+  const filters = [];
+
+  filters.push({
+    username: user.username,
+  });
+
+  if (request.name) {
+    filters.push({
+      $or: [
+        {
+          first_name: { $regex: new RegExp(request.name) },
+        },
+        {
+          last_name: { $regex: new RegExp(request.name) },
+        },
+      ],
+    });
+  }
+
+  if (request.email) {
+    filters.push({
+      email: { $regex: new RegExp(request.email) },
+    });
+  }
+
+  if (request.phone) {
+    filters.push({
+      phone: { $regex: new RegExp(request.phone) },
+    });
+  }
+
+  const contacts = await Contact.find({
+    $and: filters,
+  })
+    .skip(skip)
+    .limit(request.size);
+
+  const totalItems = await Contact.countDocuments({
+    $and: filters,
+  });
+
+  return {
+    data: contacts,
+    paging: {
+      page: request.page,
+      total_item: totalItems,
+      total_page: Math.ceil(totalItems / request.size),
+    },
+  };
+};
+
 export default {
   create,
   get,
   update,
   remove,
+  search,
 };
