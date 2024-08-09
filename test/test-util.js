@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import User from "../src/models/user.model";
 import bcrypt from "bcryptjs";
 import Contact from "../src/models/contact.model";
+import Address from "../src/models/address.model";
+import logger from "../src/utils/logger";
 
 export const removeTestUser = async () => {
   await User.deleteMany({ username: "test" });
@@ -27,9 +29,18 @@ export const getTestUser = async () => {
 };
 
 export const removeAllTestContacts = async () => {
+  const testContactIds = await Contact.find({
+    username: "test",
+  }).select({ _id: true });
+
   await Contact.deleteMany({
     username: "test",
   });
+
+  await User.findOneAndUpdate(
+    { username: "test" },
+    { $pullAll: { contacts: testContactIds } }
+  );
 };
 
 export const createTestContact = async () => {
@@ -72,4 +83,23 @@ export const createManyTestContact = async () => {
       { $push: { contacts: contactResult._id } }
     );
   }
+};
+
+export const removeAllTestAddresses = async () => {
+  const testAddressIds = await Contact.find({
+    username: "test",
+  }).select({ addresses: true });
+
+  for (let testAddressId of testAddressIds) {
+    await Address.deleteOne({ _id: testAddressId });
+  }
+
+  await Contact.findOneAndUpdate(
+    {
+      username: "test",
+    },
+    {
+      $pullAll: { addresses: testAddressIds },
+    }
+  );
 };
