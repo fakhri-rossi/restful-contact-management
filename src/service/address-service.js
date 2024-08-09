@@ -97,8 +97,27 @@ const update = async (user, contactId, request) => {
   return addressTransformer(addressResponse);
 };
 
+const remove = async (user, contactId, addressId) => {
+  contactId = await isContactExists(user, contactId);
+  addressId = validate(getAddressValidation, addressId);
+
+  const countAddress = await Address.countDocuments({
+    _id: addressId,
+    contact_id: contactId,
+  });
+
+  if (countAddress < 1) {
+    throw new ResponseError(404, "Address is not found");
+  }
+
+  return await Address.deleteOne({
+    _id: addressId,
+  });
+};
+
 export default {
   create,
   get,
   update,
+  remove,
 };
