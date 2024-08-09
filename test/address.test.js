@@ -144,3 +144,101 @@ describe("GET /api/contacts/:contact_id/addresses/:address_id", () => {
     expect(result.status).toBe(404);
   });
 });
+
+describe("PUT /api/contacts/:contact_id/addresses/:address_id", () => {
+  beforeEach(async () => {
+    await createTestUser();
+    await createTestContact();
+    await createTestAddress();
+  });
+
+  afterEach(async () => {
+    await removeAllTestAddresses();
+    await removeAllTestContacts();
+    await removeTestUser();
+  });
+
+  it("should can update address", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(app)
+      .put(`/api/contacts/${testContact._id}/addresses/${testAddress._id}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan Test Update",
+        city: "Kota Test Update",
+        province: "Provinsi Test Update",
+        country: "Finlandia",
+        postal_code: "323232",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data._id).toBeDefined();
+    expect(result.body.data.street).toBe("Jalan Test Update");
+    expect(result.body.data.city).toBe("Kota Test Update");
+    expect(result.body.data.province).toBe("Provinsi Test Update");
+    expect(result.body.data.country).toBe("Finlandia");
+    expect(result.body.data.postal_code).toBe("323232");
+  });
+
+  it("should can reject if request is invalid", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(app)
+      .put(`/api/contacts/${testContact._id}/addresses/${testAddress._id}`)
+      .set("Authorization", "test")
+      .send({
+        street: 10,
+        city: true,
+        province: 3,
+        country: "",
+        postal_code: "",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(400);
+  });
+
+  it("should can reject if address is not found", async () => {
+    const testContact = await getTestContact();
+
+    const result = await supertest(app)
+      .put(`/api/contacts/${testContact._id}/addresses/wkwk`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan Test Update",
+        city: "Kota Test Update",
+        province: "Provinsi Test Update",
+        country: "Finlandia",
+        postal_code: "323232",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(404);
+  });
+
+  it("should can reject if contact is not found", async () => {
+    const testContact = await getTestContact();
+
+    const result = await supertest(app)
+      .put(`/api/contacts/aowkwk/addresses/${testContact._id}`)
+      .set("Authorization", "test")
+      .send({
+        street: "Jalan Test Update",
+        city: "Kota Test Update",
+        province: "Provinsi Test Update",
+        country: "Finlandia",
+        postal_code: "323232",
+      });
+
+    logger.info(result.body);
+
+    expect(result.status).toBe(404);
+  });
+});
