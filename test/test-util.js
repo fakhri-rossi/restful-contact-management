@@ -37,10 +37,7 @@ export const removeAllTestContacts = async () => {
     username: "test",
   });
 
-  await User.findOneAndUpdate(
-    { username: "test" },
-    { $pullAll: { contacts: testContactIds } }
-  );
+  await User.findOneAndUpdate({ username: "test" }, { $pullAll: { contacts: testContactIds } });
 };
 
 export const createTestContact = async () => {
@@ -102,4 +99,26 @@ export const removeAllTestAddresses = async () => {
       $pullAll: { addresses: testAddressIds },
     }
   );
+};
+
+export const createTestAddress = async () => {
+  const contact = await getTestContact();
+  await Address.create({
+    contact_id: contact._id,
+    street: "Jalan Test",
+    city: "Kota Test",
+    province: "Provinsi Test",
+    country: "Indonesia",
+    postal_code: "232323",
+  });
+};
+
+export const getTestAddress = async () => {
+  const contactId = await Contact.findOne({
+    username: "test",
+  }).select({ _id: true });
+
+  return Address.findOne({
+    contact_id: contactId,
+  });
 };

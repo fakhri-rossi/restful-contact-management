@@ -8,6 +8,8 @@ import {
   createTestContact,
   closeDBConnection,
   getTestContact,
+  createTestAddress,
+  getTestAddress,
 } from "./test-util.js";
 import { app } from "../src/app/app.js";
 import logger from "../src/utils/logger.js";
@@ -87,6 +89,57 @@ describe("POST /api/contacts/:contact_id/addresses", () => {
       });
 
     logger.info(result.body);
+
+    expect(result.status).toBe(404);
+  });
+});
+
+describe("GET /api/contacts/:contact_id/addresses/:address_id", () => {
+  beforeEach(async () => {
+    await createTestUser();
+    await createTestContact();
+    await createTestAddress();
+  });
+
+  afterEach(async () => {
+    await removeAllTestAddresses();
+    await removeAllTestContacts();
+    await removeTestUser();
+  });
+
+  it("should can get address", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(app)
+      .get(`/api/contacts/${testContact._id}/addresses/${testAddress._id}`)
+      .set("Authorization", "test");
+
+    expect(result.status).toBe(200);
+    expect(result.body.data._id).toBeDefined();
+    expect(result.body.data.street).toBe("Jalan Test");
+    expect(result.body.data.city).toBe("Kota Test");
+    expect(result.body.data.province).toBe("Provinsi Test");
+    expect(result.body.data.country).toBe("Indonesia");
+    expect(result.body.data.postal_code).toBe("232323");
+  });
+
+  it("should reject if contact is not found", async () => {
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(app)
+      .get(`/api/contacts/hhhh/addresses/${testAddress._id}`)
+      .set("Authorization", "test");
+
+    expect(result.status).toBe(404);
+  });
+
+  it("should reject if address is not found", async () => {
+    const testContact = await getTestContact();
+
+    const result = await supertest(app)
+      .get(`/api/contacts/${testContact._id}/addresses/hhh`)
+      .set("Authorization", "test");
 
     expect(result.status).toBe(404);
   });
