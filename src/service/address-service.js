@@ -115,9 +115,24 @@ const remove = async (user, contactId, addressId) => {
   });
 };
 
+const list = async (user, contactId) => {
+  contactId = await isContactExists(user, contactId);
+
+  let addresses = await Address.find({
+    contact_id: contactId,
+  });
+
+  addresses = addresses.map((address) => {
+    return addressTransformer(address);
+  });
+
+  return addresses;
+};
+
 export default {
   create,
   get,
   update,
   remove,
+  list,
 };
