@@ -15,7 +15,6 @@ const isContactExists = async (user, contactId) => {
   contactId = validate(getContactValidation, contactId);
 
   const countContact = await Contact.countDocuments({
-    username: user.username,
     _id: contactId,
   });
 

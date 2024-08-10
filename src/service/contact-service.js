@@ -20,11 +20,10 @@ const create = async (user, request) => {
     email: contact.email,
     phone: contact.phone,
     user_id: user._id,
-    username: user.username,
   });
 
   await User.findOneAndUpdate(
-    { username: user.username },
+    { user_id: user._id },
     {
       $push: { contacts: resultContact._id },
     }
@@ -37,7 +36,7 @@ const get = async (user, contactId) => {
   contactId = validate(getContactValidation, contactId);
 
   const contact = await Contact.findOne({
-    username: user.username,
+    user_id: user._id,
     _id: contactId,
   });
 
@@ -52,7 +51,7 @@ const update = async (user, request) => {
   const contact = validate(updateContactValidation, request);
 
   const countContactInDatabase = await Contact.countDocuments({
-    username: user.username,
+    user_id: user._id,
     _id: contact._id,
   });
 
@@ -82,7 +81,7 @@ const remove = async (user, contactId) => {
   contactId = validate(getContactValidation, contactId);
 
   const countContactInDatabase = await Contact.findOne({
-    username: user.username,
+    user_id: user._id,
     _id: contactId,
   });
 
@@ -90,9 +89,7 @@ const remove = async (user, contactId) => {
     throw new ResponseError(404, "Contact is not found");
   }
 
-  await Contact.deleteOne({
-    _id: contactId,
-  });
+  await Contact.findOneAndDelete({ _id: contactId });
 
   await User.findOneAndUpdate(
     {
@@ -114,7 +111,7 @@ const search = async (user, request) => {
   const filters = [];
 
   filters.push({
-    username: user.username,
+    user_id: user._id,
   });
 
   if (request.name) {

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import Address from "./address.model";
 
 const contactSchema = new mongoose.Schema({
   first_name: {
@@ -24,15 +25,18 @@ const contactSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  username: {
-    type: String,
-  },
   addresses: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",
     },
   ],
+});
+
+contactSchema.post("findOneAndDelete", async (contact) => {
+  if (contact.addresses.length > 0) {
+    await Address.deleteMany({ _id: { $in: contact.addresses } });
+  }
 });
 
 const Contact = mongoose.model("Contact", contactSchema);
