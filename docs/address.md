@@ -6,7 +6,7 @@ Endpoint : POST /api/contacts/:contact_id/addresses
 
 Headers:
 
-- Authoriation : token
+- Authorization : token
 
 Request Body :
 
@@ -25,7 +25,7 @@ Response Body Success :
 ```json
 {
   "data": {
-    "id": 1,
+    "_id": "ObjectId",
     "street": "Jl Kemang",
     "city": "Jakarta",
     "province": "DKI Jakarta",
@@ -49,7 +49,7 @@ Endpoint : PUT /api/contacts/:contact_id/addresses/:address_id
 
 Headers:
 
-- Authoriation : token
+- Authorization : token
 
 Request Body :
 
@@ -68,7 +68,7 @@ Response Body Success :
 ```json
 {
   "data": {
-    "id": 1,
+    "_id": "ObjectId",
     "street": "Jl Kemang",
     "city": "Jakarta",
     "province": "DKI Jakarta",
@@ -92,14 +92,14 @@ Endpoint : GET /api/contacts/:contact_id/addresses/:address_id
 
 Headers:
 
-- Authoriation : token
+- Authorization : token
 
 Response Body Success :
 
 ```json
 {
   "data": {
-    "id": 1,
+    "_id": "ObjectId",
     "street": "Jl Kemang",
     "city": "Jakarta",
     "province": "DKI Jakarta",
@@ -123,7 +123,7 @@ Endpoint : GET /api/contacts/:contact_id/addresses
 
 Headers:
 
-- Authoriation : token
+- Authorization : token
 
 Response Body Success :
 
@@ -131,7 +131,7 @@ Response Body Success :
 {
   "data": [
     {
-      "id": 1,
+      "_id": "ObjectId",
       "street": "Jl Kemang",
       "city": "Jakarta",
       "province": "DKI Jakarta",
@@ -139,7 +139,7 @@ Response Body Success :
       "postal_code": "12212"
     },
     {
-      "id": 2,
+      "_id": "ObjectId",
       "street": "Jl Kemang",
       "city": "Jakarta",
       "province": "DKI Jakarta",
@@ -164,7 +164,7 @@ Endpoint : DELETE /api/contacts/:contact_id/addresses/:address_id
 
 Headers:
 
-- Authoriation : token
+- Authorization : token
 
 Response Body Success :
 
