@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
-import Address from "./address.model";
+import Address from "./address.model.js";
 
 const contactSchema = new mongoose.Schema({
   first_name: {
