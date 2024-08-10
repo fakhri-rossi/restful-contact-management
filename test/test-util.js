@@ -5,6 +5,11 @@ import Contact from "../src/models/contact.model.js";
 import Address from "../src/models/address.model.js";
 import logger from "../src/utils/logger.js";
 
+const getTestUserId = async () => {
+  const testUser = await User.findOne({ username: "test" }).select({ _id: true });
+  return testUser._id;
+};
+
 export const removeTestUser = async () => {
   await User.deleteMany({ username: "test" });
 };
@@ -24,17 +29,17 @@ export const closeDBConnection = async () => {
 
 export const getTestUser = async () => {
   return await User.findOne({
-    username: "test",
+    _id: await getTestUserId(),
   });
 };
 
 export const removeAllTestContacts = async () => {
   const testContactIds = await Contact.find({
-    username: "test",
+    user_id: await getTestUserId(),
   }).select({ _id: true });
 
   await Contact.deleteMany({
-    username: "test",
+    user_id: await getTestUserId(),
   });
 
   await User.findOneAndUpdate({ username: "test" }, { $pullAll: { contacts: testContactIds } });
@@ -55,12 +60,23 @@ export const createTestContact = async () => {
     },
     { $push: { contacts: contactResult._id } }
   );
+
+  await Contact.findOneAndUpdate(
+    {
+      _id: contactResult._id,
+    },
+    {
+      user_id: await getTestUserId(),
+    }
+  );
 };
 
 export const getTestContact = async () => {
-  return await Contact.findOne({
-    username: "test",
+  const testUserId = await getTestUserId();
+  const result = await Contact.findOne({
+    user_id: testUserId,
   });
+  return result;
 };
 
 export const createManyTestContact = async () => {
@@ -79,12 +95,21 @@ export const createManyTestContact = async () => {
       },
       { $push: { contacts: contactResult._id } }
     );
+
+    await Contact.findOneAndUpdate(
+      {
+        _id: contactResult._id,
+      },
+      {
+        user_id: await getTestUserId(),
+      }
+    );
   }
 };
 
 export const removeAllTestAddresses = async () => {
   const contactId = await Contact.findOne({
-    username: "test",
+    user_id: await getTestUserId(),
   }).select({ _id: true });
 
   await Address.deleteMany({
@@ -93,7 +118,7 @@ export const removeAllTestAddresses = async () => {
 
   await Contact.findOneAndUpdate(
     {
-      username: "test",
+      user_id: await getTestUserId(),
     },
     {
       $set: { addresses: [] },
@@ -115,7 +140,7 @@ export const createTestAddress = async () => {
 
 export const getTestAddress = async () => {
   const contactId = await Contact.findOne({
-    username: "test",
+    user_id: await getTestUserId(),
   }).select({ _id: true });
 
   return Address.findOne({
