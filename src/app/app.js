@@ -11,6 +11,10 @@ connectDB();
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("GET / succeed");
+});
+
 app.use(publicRouter);
 app.use(userRouter);
 
