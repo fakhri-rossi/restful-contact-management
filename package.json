@@ -4,7 +4,8 @@
   "description": "Learn Implementation of NodeJS to create Restful API",
   "main": "src/main.js",
   "scripts": {
-    "test": "jest -i"
+    "test": "jest -i",
+    "build": "node ./src/main.js"
   },
   "jest": {
     "transform": {
